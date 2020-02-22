@@ -10,7 +10,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     with conn:
         print('Connected by', addr)
         while True:
-            data = conn.recv(1024)
+            #data = conn.recv(1024)
+            data = conn.makefile(mode='r', buffering=1).readline()
             if not data:
                 break
-            conn.sendall(data)
+            conn.sendall(bytes(data, 'utf-8'))
