@@ -9,6 +9,9 @@ class IllegalHTTPMethodException(IPKException):
 class IncorrectGETFormatException(IPKException):
     pass
 
+class IncorrectPOSTFormatException(IPKException):
+    pass
+
 class IncorrectHTTPVersion(IPKException):
     pass
 
