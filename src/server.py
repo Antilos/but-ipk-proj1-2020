@@ -29,7 +29,6 @@ class ipkRequest():
         (?P<version>HTTP/1.1)
         $'
         '''
-        #print(request)
         requestLine = request[0]
 
         requestPattern = r'''^
@@ -85,7 +84,6 @@ class ipkRequest():
             tmpHeader = list()
             tmpBody = list()
             for i, ln in enumerate(request[1:], 1):
-                #print(ln)
                 if(ln != ''):
                     tmpHeader.append(ln)
                 else:
@@ -160,9 +158,6 @@ class ipkResponse():
         output += f'Date: {self.dateTime}\n' #fix
         output += '\n'
         output += ''.join(self.body)
-        print(output)
-        print('=====')
-        print(''.join(output))
 
         return bytes(''.join(output), 'utf-8')
 
@@ -184,23 +179,27 @@ def main():
         s.bind((HOST, PORT))
         s.listen()
         while True:
-            conn, addr = s.accept()
-            receivedInput = conn.recv(1024)
-            #if not receivedInput:
-            #    break
-            data = re.split(r'\r\n', receivedInput.decode('utf-8'))
-
             try:
-                request = ipkRequest(data)
-                request.handleRequest()
-            except (ipke.IllegalHTTPMethodException, ipke.IncorrectGETFormatException, ipke.IncorrectPOSTFormatException):
-                response = ipkResponse("HTTP/1.1", 400, "Bad Request", datetime.datetime.now(), "")
-            except ipke.IllegalHTTPMethodException:
-                response = ipkResponse("HTTP/1.1", 405, "Method Not Allowed", datetime.datetime.now(), "")
-            else:
-                response = ipkResponse(request.getVersion(), 200, "OK", datetime.datetime.now(), request.getOutputBody())
+                conn, addr = s.accept()
+                receivedInput = conn.recv(1024)
+                #if not receivedInput:
+                #    break
+                data = re.split(r'\r\n', receivedInput.decode('utf-8'))
 
-            conn.sendall(response.outputResponse())
-            conn.close()
+                try:
+                    request = ipkRequest(data)
+                    request.handleRequest()
+                except (ipke.IllegalHTTPMethodException, ipke.IncorrectGETFormatException, ipke.IncorrectPOSTFormatException):
+                    response = ipkResponse("HTTP/1.1", 400, "Bad Request", datetime.datetime.now(), "")
+                except ipke.IllegalHTTPMethodException:
+                    response = ipkResponse("HTTP/1.1", 405, "Method Not Allowed", datetime.datetime.now(), "")
+                else:
+                    response = ipkResponse(request.getVersion(), 200, "OK", datetime.datetime.now(), request.getOutputBody())
+
+                conn.sendall(response.outputResponse())
+                conn.close()
+            except KeyboardInterrupt:
+                break
+
 
 main()
